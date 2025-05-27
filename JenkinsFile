@@ -17,8 +17,8 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 sh '''
-                    scp -o StrictHostKeyChecking=no index-aws.html ubuntu@${AWS_APP_IP}:/var/www/html/
-                    ssh -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo systemctl restart nginx"
+                    scp -o StrictHostKeyChecking=no index-aws.html ubuntu@${AWS_APP_IP}:/tmp/
+                    ssh -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo mv /tmp/index-aws.html /var/www/html/ && sudo systemctl restart nginx"
                 '''
             }
         }
@@ -40,4 +40,4 @@ pipeline {
             cleanWs()
         }
     }
-}   
+} 
