@@ -17,8 +17,14 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 sh '''
+                    echo "Starting deployment to AWS..."
                     scp -o StrictHostKeyChecking=no index-aws.html ubuntu@${AWS_APP_IP}:/tmp/
                     ssh -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo mv /tmp/index-aws.html /var/www/html/ && sudo systemctl restart nginx"
+                    echo "Deployment completed. Checking Nginx status..."
+                    ssh -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo systemctl status nginx"
+                    echo "Nginx logs:"
+                    ssh -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo tail -n 50 /var/log/nginx/access.log"
+                    ssh -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo tail -n 50 /var/log/nginx/error.log"
                 '''
             }
         }
