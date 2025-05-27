@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    
+    environment {
+        GITHUB_REPO = 'Ayushi017/capstoneproject'
+        AWS_APP_IP = '54.91.206.12'  // Your AWS App Machine IP
+        // AZURE_APP_IP = 'your-azure-ip'  // Your Azure VM IP
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Deploy to AWS') {
+            steps {
+                sh '''
+                    scp -o StrictHostKeyChecking=no index-aws.html ubuntu@${AWS_APP_IP}:/var/www/html/
+                    ssh -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo systemctl restart nginx"
+                '''
+            }
+        }
+        
+        /* Commenting out Azure deployment for now
+        stage('Deploy to Azure') {
+            steps {
+                sh '''
+                    scp -o StrictHostKeyChecking=no index-azure.html ubuntu@${AZURE_APP_IP}:/var/www/html/
+                    ssh -o StrictHostKeyChecking=no ubuntu@${AZURE_APP_IP} "sudo systemctl restart nginx"
+                '''
+            }
+        }
+        */
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}   
