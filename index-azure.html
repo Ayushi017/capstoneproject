@@ -1,25 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome to Azure!</title>
+    <title>Welcome to Azure</title>
     <style>
         body {
-            width: 35em;
-            margin: 0 auto;
-            font-family: Tahoma, Verdana, Arial, sans-serif;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #232f3e;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #666;
+            margin: 0;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to Azure!</h1>
-    <p>If you see this page, the nginx web server is successfully installed and
-    working. Further configuration is required.</p>
-
-    <p>For online documentation and support please refer to
-    <a href="http://nginx.org/">nginx.org</a>.<br/>
-    Commercial support is available at
-    <a href="http://nginx.com/">nginx.com</a>.</p>
-
-    <p><em>Thank you for using nginx.</em></p>
+    <div class="container">
+        <h1>Welcome to Azure</h1>
+        <p>This is the Azure instance of our multi-cloud deployment.</p>
+    </div>
 </body>
-</html> 
+</html>
