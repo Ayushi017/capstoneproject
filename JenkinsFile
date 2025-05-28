@@ -5,6 +5,7 @@ pipeline {
         GITHUB_REPO = 'Ayushi017/capstoneproject'
         AWS_APP_IP = '3.86.193.231'  // Your AWS App Machine IP
         AZURE_APP_IP = '20.185.61.158'  // Your Azure VM IP
+        AZURE_CREDENTIALS = credentials('azure-credentials')
     }
     
     stages {
@@ -29,12 +30,47 @@ pipeline {
             }
         }
         
-
         stage('Deploy to Azure') {
             steps {
                 sh '''
-                    scp -o StrictHostKeyChecking=no index-azure.html ubuntu@${AZURE_APP_IP}:/var/www/html/
-                    ssh -o StrictHostKeyChecking=no ubuntu@${AZURE_APP_IP} "sudo systemctl restart nginx"
+                    echo "Starting deployment to Azure..."
+                    # Create expect script for automated SSH
+                    cat > deploy_azure.exp << 'EOF'
+                    #!/usr/bin/expect -f
+                    set timeout 30
+                    spawn scp -o StrictHostKeyChecking=no index-azure.html azureuser@${AZURE_APP_IP}:/tmp/
+                    expect "password:"
+                    send "$AZURE_CREDENTIALS\r"
+                    expect eof
+                    EOF
+                    
+                    chmod +x deploy_azure.exp
+                    ./deploy_azure.exp
+                    
+                    # Create expect script for SSH commands
+                    cat > ssh_azure.exp << 'EOF'
+                    #!/usr/bin/expect -f
+                    set timeout 30
+                    spawn ssh -o StrictHostKeyChecking=no azureuser@${AZURE_APP_IP}
+                    expect "password:"
+                    send "$AZURE_CREDENTIALS\r"
+                    expect "$ "
+                    send "sudo mv /tmp/index-azure.html /var/www/html/ && sudo systemctl restart nginx\r"
+                    expect "password:"
+                    send "$AZURE_CREDENTIALS\r"
+                    expect "$ "
+                    send "sudo systemctl status nginx\r"
+                    expect "password:"
+                    send "$AZURE_CREDENTIALS\r"
+                    expect "$ "
+                    send "exit\r"
+                    expect eof
+                    EOF
+                    
+                    chmod +x ssh_azure.exp
+                    ./ssh_azure.exp
+                    
+                    echo "Azure deployment completed"
                 '''
             }
         }
@@ -43,6 +79,12 @@ pipeline {
     post {
         always {
             cleanWs()
+        }
+        success {
+            echo 'Deployment completed successfully!'
+        }
+        failure {
+            echo 'Deployment failed!'
         }
     }
 } 
