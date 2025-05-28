@@ -17,16 +17,18 @@ pipeline {
         
         stage('Deploy to AWS') {
             steps {
-                sh '''
-                    echo "Starting deployment to AWS..."
-                    scp -i /home/ubuntu/.ssh/terraform-key.pem -o StrictHostKeyChecking=no index-aws.html ubuntu@${AWS_APP_IP}:/tmp/
-                    ssh -i /home/ubuntu/.ssh/terraform-key.pem -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo mv /tmp/index-aws.html /var/www/html/ && sudo systemctl restart nginx"
-                    echo "Deployment completed. Checking Nginx status..."
-                    ssh -i /home/ubuntu/.ssh/terraform-key.pem -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo systemctl status nginx"
-                    echo "Nginx logs:"
-                    ssh -i /home/ubuntu/.ssh/terraform-key.pem -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo tail -n 50 /var/log/nginx/access.log"
-                    ssh -i /home/ubuntu/.ssh/terraform-key.pem -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo tail -n 50 /var/log/nginx/error.log"
-                '''
+                withCredentials([sshUserPrivateKey(credentialsId: 'my-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    sh '''
+                        echo "Starting deployment to AWS..."
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no index-aws.html ubuntu@${AWS_APP_IP}:/tmp/
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo mv /tmp/index-aws.html /var/www/html/ && sudo systemctl restart nginx"
+                        echo "Deployment completed. Checking Nginx status..."
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo systemctl status nginx"
+                        echo "Nginx logs:"
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo tail -n 50 /var/log/nginx/access.log"
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${AWS_APP_IP} "sudo tail -n 50 /var/log/nginx/error.log"
+                    '''
+                }
             }
         }
         
