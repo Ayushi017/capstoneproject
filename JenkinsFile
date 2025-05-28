@@ -3,8 +3,8 @@ pipeline {
     
     environment {
         GITHUB_REPO = 'Ayushi017/capstoneproject'
-        AWS_APP_IP = '54.91.206.12'  // Your AWS App Machine IP
-        // AZURE_APP_IP = 'your-azure-ip'  // Your Azure VM IP
+        AWS_APP_IP = '3.86.193.231'  // Your AWS App Machine IP
+        AZURE_APP_IP = '20.185.61.158'  // Your Azure VM IP
     }
     
     stages {
@@ -29,7 +29,7 @@ pipeline {
             }
         }
         
-        /* Commenting out Azure deployment for now
+
         stage('Deploy to Azure') {
             steps {
                 sh '''
@@ -38,7 +38,6 @@ pipeline {
                 '''
             }
         }
-        */
     }
     
     post {
